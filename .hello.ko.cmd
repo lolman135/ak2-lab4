@@ -1,0 +1,1 @@
+cmd_/home/lolman/labs/lab4/examples/test1/hello.ko := ccache arm-linux-gnueabihf-ld -r  -EL -z noexecstack  -T ./scripts/module-common.lds -T ./arch/arm/kernel/module.lds  --build-id  -o /home/lolman/labs/lab4/examples/test1/hello.ko /home/lolman/labs/lab4/examples/test1/hello.o /home/lolman/labs/lab4/examples/test1/hello.mod.o ;  true
