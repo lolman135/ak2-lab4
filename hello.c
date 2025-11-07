@@ -32,20 +32,59 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/printk.h>
+#include <linux/list.h>
+#include <linux/ktime.h>
+#include <linux/slab.h>
 
-MODULE_AUTHOR("Serhii Popovych <serhii.popovych@globallogic.com>");
-MODULE_DESCRIPTION("Hello, world in Linux Kernel Training");
+MODULE_AUTHOR("Kusovskyi Kyrylo <kkirilll2006@gmail.com>");
+MODULE_DESCRIPTION("Hello, world as Lab4 for AK-2 subject");
 MODULE_LICENSE("Dual BSD/GPL");
+MODULE_PARM_DESC(param, "Parameter, how many times print 'Hello, world!'");
+
+static unsigned int param = 1;
+module_param(param, uint, 0444);
+
+struct event {
+	struct list_head list;
+	ktime_t time;
+};
+
+static LIST_HEAD(listTime);
 
 static int __init hello_init(void)
 {
-	printk(KERN_EMERG "Hello, world!\n");
+	unsigned int i = 0;
+
+	if (param == 0 || (param >= 5 && param <= 10)) {
+		pr_warn("Warning...\n", param);
+	} else if (param > 10) {
+		pr_err("Error (EINVAL was raised) !\n", param);
+		return -EINVAL;
+	}
+
+	for (i = 0; i < param; i++) {
+		struct event *event = kmalloc(sizeof(*event), GFP_KERNEL);
+
+	event->time = ktime_get();
+	list_add_tail(&event->list, &listTime);
+	pr_info("Hello, world !\n");
+	}
 	return 0;
 }
 
 static void __exit hello_exit(void)
 {
-	/* Do nothing here right now */
+	struct event *event;
+
+	struct list_head *posit, *t;
+
+list_for_each_safe(posit, t, &listTime) {
+	event = list_entry(posit, struct event, list);
+	pr_info("Event time : % lld ns\n", ktime_to_ns(event->time));
+
+	list_del(posit);// Delete element from list
+	kfree(event);
+	}
 }
 
 module_init(hello_init);
