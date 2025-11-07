@@ -82,7 +82,7 @@ list_for_each_safe(posit, t, &listTime) {
 	event = list_entry(posit, struct event, list);
 	pr_info("Event time : % lld ns\n", ktime_to_ns(event->time));
 
-	list_del(posit);// Delete element from list
+	list_del(posit);
 	kfree(event);
 	}
 }
